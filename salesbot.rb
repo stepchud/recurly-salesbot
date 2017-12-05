@@ -61,7 +61,7 @@ def dunning_event xml
   currency = xml.xpath('//invoice/currency').text
   dunning_events_count = xml.xpath('//invoice/dunning_events_count').text
   final_dunning_event = xml.xpath('//invoice/final_dunning_event').text
-  final_dunning_event =~ true ? final = 'No dunning attempts remaining.' : final = "Invoice is still in dunning."
+  final_dunning_event == 'true' ? final = 'No dunning attempts remaining.' : final = "Invoice is still in dunning."
   status = state == 'collected' ? 'Successful' : 'Failed'
 
   str = <<-EOS
