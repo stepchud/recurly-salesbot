@@ -4,7 +4,7 @@ require 'json'
 require 'httparty'
 
 SLACK_ENDPOINT='https://hooks.slack.com/services/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'
-INVOICES_URL='https://slackathon-sales.recurly.com/invoices/'
+RECURLY_SITE_URL='https://slackathon-sales.recurly.com'
 
 get '/' do
   "Recurly Salesbot at your service!"
@@ -38,6 +38,7 @@ end
 
 def closed_invoice xml
   invoice_number = xml.xpath('//invoice/invoice_number').text
+  company = xml.xpath('//account/company_name').text
   account_name = [xml.xpath('//account/first_name').text, xml.xpath('//account/last_name').text].compact.join(" ")
   state = xml.xpath('//invoice/state').text
   prefix = state == "collected" ? "💸 💸 💸  You just got paid for" : "😭 😭 😭  Failed to collect on"
@@ -45,7 +46,7 @@ def closed_invoice xml
   currency = xml.xpath('//invoice/currency').text
 
   str = <<-EOS
-    #{prefix} #{invoice_link(invoice_number)} for #{account_name}
+    #{prefix} #{invoice_link invoice_number} for #{account_link(company != "" ? company : account_name, account_code)}
     Amount: #{amount} #{currency}
   EOS
 
@@ -56,6 +57,9 @@ def dunning_event xml
   invoice_number = xml.xpath('//invoice/invoice_number').text
   company = xml.xpath('//account/company_name').text
   account_name = [xml.xpath('//account/first_name').text, xml.xpath('//account/last_name').text].compact.join(" ")
+  account_code = xml.xpath('//account/account_code').text
+  email = xml.xpath('//account/email').text
+  phone = xml.xpath('//account/phone').text
   state = xml.xpath('//invoice/state').text
   amount = xml.xpath('//invoice/total_in_cents').text.to_f/100
   currency = xml.xpath('//invoice/currency').text
@@ -65,16 +69,28 @@ def dunning_event xml
   status = state == 'collected' ? 'Successful' : 'Failed'
 
   str = <<-EOS
-    #{status} dunning attempt for #{company != "" ? company : account_name} (Invoice: #{invoice_number})
+    #{status} dunning attempt for #{account_link(company != "" ? company : account_name, account_code)} (#{invoice_link invoice_number})
     Collection attempt: #{dunning_events_count} (#{final})
     Invoice amount: #{amount} #{currency}
-    Customer email: #{xml.xpath('//account/email').text}
-    Customer phone: #{xml.xpath('//account/phone').text}
+    Customer email: #{format_email email}
+    Customer phone: #{format_phone phone}
   EOS
 
   post_webhook str
 end
 
 def invoice_link(number)
-  "<#{INVOICES_URL}#{number}|Invoice \##{number}>"
+  "<#{RECURLY_SITE_URL}/invoices/#{number}|Invoice \##{number}>"
+end
+
+def account_link(name, code)
+  "<#{RECURLY_SITE_URL}/accounts/#{code}|name>"
+end
+
+def format_email(name, email)
+  "<mailto:#{email}|#{email}>"
+end
+
+def format_phone(number)
+  "<tel:#{number}|#{number}>"
 end
