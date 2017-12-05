@@ -10,10 +10,6 @@ get '/' do
   "Recurly Salesbot at your service!"
 end
 
-get '/webhook' do
-  "Hello Webhooks"
-end
-
 post '/webhook' do
   xml = Nokogiri::XML.parse request.body
   puts "GOT WEBHOOK #{xml.root.name}"
@@ -69,7 +65,7 @@ def dunning_event xml
   status = state == 'collected' ? 'Successful' : 'Failed'
 
   str = <<-EOS
-    #{status} dunning attempt for #{company.present? ? company : account_name}
+    #{status} dunning attempt for #{company != "" ? company : account_name}
     Collection attempt: #{dunning_events_count} (#{final})
     Invoice amount: #{amount} #{currency}
   EOS
