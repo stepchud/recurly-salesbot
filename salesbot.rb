@@ -12,9 +12,8 @@ get '/webhook' do
 end
 
 post '/webhook' do
-  puts "WEBHOOK PARAMS:"
-  puts params
-  xml = Nokogiri::XML.parse params
+  xml = Nokogiri::XML.parse request.body
+  puts "GOT XML"
   puts xml
   content_type :json
   xml.to_json
