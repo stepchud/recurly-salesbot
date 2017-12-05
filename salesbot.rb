@@ -11,6 +11,6 @@ get '/webhook' do
 end
 
 post '/webhook' do
-  pp "Receiving Webhook #{params[:webhookId]}"
-  pp JSON.parse(params[:result])
+  pp "WEBHOOK PARAMS:"
+  pp params
 end
