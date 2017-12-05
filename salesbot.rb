@@ -45,7 +45,7 @@ def closed_invoice xml
   currency = xml.xpath('//invoice/currency').text
 
   str = <<-EOS
-    #{prefix} <#{INVOICES_URL}#{invoice_number}|Invoice \##{invoice_number}> for #{account_name}
+    #{prefix} #{invoice_link(invoice_number)} for #{account_name}
     Amount: #{amount} #{currency}
   EOS
 
@@ -71,4 +71,8 @@ def dunning_event xml
   EOS
 
   post_webhook str
+end
+
+def invoice_link(number)
+  "<#{INVOICES_URL}#{number}|Invoice \##{number}>"
 end
