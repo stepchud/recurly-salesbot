@@ -16,4 +16,6 @@ post '/webhook' do
   puts params
   xml = Nokogiri::XML.parse params
   puts xml
+  content_type :json
+  xml.to_json
 end
