@@ -40,6 +40,7 @@ def closed_invoice xml
   invoice_number = xml.xpath('//invoice/invoice_number').text
   company = xml.xpath('//account/company_name').text
   account_name = [xml.xpath('//account/first_name').text, xml.xpath('//account/last_name').text].compact.join(" ")
+  account_code = xml.xpath('//account/account_code').text
   state = xml.xpath('//invoice/state').text
   prefix = state == "collected" ? "💸 💸 💸  You just got paid for" : "😭 😭 😭  Failed to collect on"
   amount = xml.xpath('//invoice/total_in_cents').text.to_f/100
