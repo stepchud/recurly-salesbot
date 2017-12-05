@@ -4,6 +4,9 @@ require 'json'
 require 'httparty'
 
 SLACK_ENDPOINT='https://hooks.slack.com/services/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'
+INVOICES_URL='https://slackathon-sales.recurly.com/invoices/'
+
+attr_reader :xml
 
 get '/' do
   "Recurly Salesbot at your service!"
@@ -14,13 +17,29 @@ get '/webhook' do
 end
 
 post '/webhook' do
-  xml_doc = Nokogiri::XML.parse request.body
+  @xml = Nokogiri::XML.parse request.body
+  case xml.root.name
+  when "closed_invoice_notification"
+    post_closed_invoice
+  else
+    post_webhook "Received webhook: #{xml.root.name}"
+  end
+
+  content_type :json
+  xml.to_json
+end
+
+private
+
+def post_webhook message
   HTTParty.post(
     SLACK_ENDPOINT,
     headers: { 'Content-Type' => 'application/json' },
-    body: { "text": "Received webhook: #{xml_doc.root.name}" }.to_json
+    body: { "text": message }.to_json
   )
+end
 
-  content_type :json
-  xml_doc.to_json
+def post_closed_invoice
+  invoice_number = xml.xpath('//invoice/invoice_number').text
+  post_webhook "New Invoice! <#{INVOICES_URL}#{invoice_number}|\##{invoice_number}>"
 end
