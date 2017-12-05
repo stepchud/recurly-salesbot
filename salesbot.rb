@@ -68,6 +68,8 @@ def dunning_event xml
     #{status} dunning attempt for #{company != "" ? company : account_name}
     Collection attempt: #{dunning_events_count} (#{final})
     Invoice amount: #{amount} #{currency}
+    Customer email: #{xml.xpath('//account/email').text}
+    Customer phone: #{xml.xpath('//account/phone').text}
   EOS
 
   post_webhook str
