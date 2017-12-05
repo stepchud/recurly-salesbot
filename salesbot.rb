@@ -20,6 +20,8 @@ post '/webhook' do
   case xml.root.name
   when "closed_invoice_notification"
     closed_invoice xml
+  when 'new_dunning_event_notification'
+    dunning_event xml
   else
     post_webhook "Received webhook: #{xml.root.name}"
   end
@@ -41,13 +43,35 @@ end
 def closed_invoice xml
   invoice_number = xml.xpath('//invoice/invoice_number').text
   account_name = [xml.xpath('//account/first_name').text, xml.xpath('//account/last_name').text].compact.join(" ")
-  state = xml.xpath('//invoice/state').text == "collected" ? "💸 💸 💸  You just got paid for" : "😭 😭 😭  Failed to collect on"
+  state = xml.xpath('//invoice/state').text
+  prefix = state == "collected" ? "💸 💸 💸  You just got paid for" : "😭 😭 😭  Failed to collect on"
   amount = xml.xpath('//invoice/total_in_cents').text.to_f/100
   currency = xml.xpath('//invoice/currency').text
 
   str = <<-EOS
-    #{state.capitalize} <#{INVOICES_URL}#{invoice_number}|Invoice \##{invoice_number}> for #{account_name}
+    #{prefix} <#{INVOICES_URL}#{invoice_number}|Invoice \##{invoice_number}> for #{account_name}
     Amount: #{amount} #{currency}
+  EOS
+
+  post_webhook str
+end
+
+def dunning_event xml
+  invoice_number = xml.xpath('//invoice/invoice_number').text
+  company = xml.xpath('//account/company_name').text
+  account_name = [xml.xpath('//account/first_name').text, xml.xpath('//account/last_name').text].compact.join(" ")
+  state = xml.xpath('//invoice/state').text
+  amount = xml.xpath('//invoice/total_in_cents').text.to_f/100
+  currency = xml.xpath('//invoice/currency').text
+  dunning_events_count = xml.xpath('//invoice/dunning_events_count').text
+  final_dunning_event = xml.xpath('//invoice/final_dunning_event').text
+  final_dunning_event =~ true ? final = 'No dunning attempts remaining.' : final = "Invoice is still in dunning."
+  status = state == 'collected' ? 'Successful' : 'Failed'
+
+  str = <<-EOS
+    #{status} dunning attempt for #{company.present? ? company : account_name}
+    Collection attempt: #{dunning_events_count} (#{final})
+    Invoice amount: #{amount} #{currency}
   EOS
 
   post_webhook str
