@@ -84,10 +84,10 @@ def invoice_link(number)
 end
 
 def account_link(name, code)
-  "<#{RECURLY_SITE_URL}/accounts/#{code}|name>"
+  "<#{RECURLY_SITE_URL}/accounts/#{code}|#{name}>"
 end
 
-def format_email(name, email)
+def format_email(email)
   "<mailto:#{email}|#{email}>"
 end
 
