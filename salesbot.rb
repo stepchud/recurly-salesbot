@@ -14,15 +14,13 @@ get '/webhook' do
 end
 
 post '/webhook' do
-  xml = Nokogiri::XML.parse request.body
-  puts "GOT XML"
-  puts xml
+  xml_doc = Nokogiri::XML.parse request.body
   HTTParty.post(
     SLACK_ENDPOINT,
     headers: { 'Content-Type' => 'application/json' },
-    body: { "text": "This is a line of text.\nAnd this is another one." }.to_json
+    body: { "text": "Received webhook: #{xml_doc.root.name}" }.to_json
   )
 
   content_type :json
-  xml.to_json
+  xml_doc.to_json
 end
