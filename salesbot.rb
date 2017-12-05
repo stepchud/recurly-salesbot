@@ -39,17 +39,15 @@ end
 
 def closed_invoice xml
   invoice_number = xml.xpath('//invoice/invoice_number').text
-  company = xml.xpath('//account/company_name').text
-  account_name = xml.xpath('//account/first_name').text + ' ' + xml.xpath('//account/last_name').text
+  account_name = [xml.xpath('//account/first_name').text, xml.xpath('//account/last_name').text].compact.join(" ")
   state = xml.xpath('//invoice/invoice_number').text
   amount = xml.xpath('//invoice/total_in_cents').text.to_f/100
-  currency = xml.xpath('//invoice/currency').text.to_f/100
+  currency = xml.xpath('//invoice/currency').text
 
-  str = <<~eos
-  #{state.capitalize} invoice #{invoice_number} for #{company.present? ? company : name}
-  Amount: #{amount} #{currency}
-  eos
+  str = <<-EOS
+    #{state.capitalize} <#{INVOICES_URL}#{invoice_number}|Invoice \##{invoice_number}> for #{account_name}
+    Amount: #{amount} #{currency}
+  EOS
 
   post_webhook str
-  # post_webhook "New Invoice! <#{INVOICES_URL}#{invoice_number}|\##{invoice_number}>"
 end
