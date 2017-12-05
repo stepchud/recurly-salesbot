@@ -19,7 +19,7 @@ post '/webhook' do
   when 'new_dunning_event_notification'
     dunning_event xml
   else
-    post_webhook "Received webhook: #{xml.root.name}"
+    puts "Unhandled webhook: #{xml.root.name}"
   end
 
   content_type :json
