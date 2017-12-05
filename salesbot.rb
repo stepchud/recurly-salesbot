@@ -65,9 +65,11 @@ def dunning_event xml
   status = state == 'collected' ? 'Successful' : 'Failed'
 
   str = <<-EOS
-    #{status} dunning attempt for #{company != "" ? company : account_name}
+    #{status} dunning attempt for #{company != "" ? company : account_name} (Invoice: #{invoice_number})
     Collection attempt: #{dunning_events_count} (#{final})
     Invoice amount: #{amount} #{currency}
+    Customer email: #{xml.xpath('//account/email').text}
+    Customer phone: #{xml.xpath('//account/phone').text}
   EOS
 
   post_webhook str
