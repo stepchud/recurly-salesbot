@@ -1,4 +1,5 @@
 require 'sinatra'
+require 'nokogiri'
 require 'json'
 require 'pp'
 
@@ -11,6 +12,8 @@ get '/webhook' do
 end
 
 post '/webhook' do
-  pp "WEBHOOK PARAMS:"
-  pp params
+  puts "WEBHOOK PARAMS:"
+  puts params
+  xml = Nokogiri::XML.parse params
+  puts xml
 end
