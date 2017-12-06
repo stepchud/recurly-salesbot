@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<closed_invoice_notification>
+  <account>
+    <account_code>billybob@example.com</account_code>
+    <username nil="true"></username>
+    <email>billybob@example.com</email>
+    <first_name>Billy</first_name>
+    <last_name>Bob</last_name>
+    <company_name nil="true"></company_name>
+    <phone nil="true"></phone>
+  </account>
+  <invoice>
+    <uuid>41975f9a8bb0744a0d5ef34ce2805d2a</uuid>
+    <subscription_id>41975f99cf79d66108cd304120bc3275</subscription_id>
+    <state>collected</state>
+    <invoice_number_prefix></invoice_number_prefix>
+    <invoice_number type="integer">1000</invoice_number>
+    <po_number nil="true"></po_number>
+    <vat_number nil="true"></vat_number>
+    <total_in_cents type="integer">10000</total_in_cents>
+    <currency>USD</currency>
+    <date type="datetime">2017-12-05T21:28:19Z</date>
+    <closed_at type="datetime">2017-12-05T21:28:19Z</closed_at>
+    <net_terms type="integer">0</net_terms>
+    <collection_method>automatic</collection_method>
+  </invoice>
+</closed_invoice_notification>
